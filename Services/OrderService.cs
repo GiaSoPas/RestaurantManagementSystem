@@ -16,12 +16,12 @@ public class OrderService : IOrderService
 
     public async Task<OrderResponseDto> CreateOrderAsync(CreateOrderDto orderDto, int userId)
     {
-        // Проверяем, свободен ли столик
+        // Проверяем, свободен ли столик (StatusId = 1 - "Свободен")
         var table = await _context.Tables
-            .FirstOrDefaultAsync(t => t.Id == orderDto.TableId && t.IsAvailable);
+            .FirstOrDefaultAsync(t => t.Id == orderDto.TableId && t.StatusId == 1);
             
         if (table == null)
-            throw new InvalidOperationException("Table is not available");
+            throw new InvalidOperationException("Столик занят или не существует");
             
         // Проверяем существование всех блюд
         var menuItemIds = orderDto.Items.Select(i => i.MenuItemId).ToList();
@@ -30,7 +30,7 @@ public class OrderService : IOrderService
             .ToDictionaryAsync(m => m.Id);
             
         if (menuItems.Count != menuItemIds.Count)
-            throw new InvalidOperationException("Some menu items are not available");
+            throw new InvalidOperationException("Некоторые блюда недоступны");
             
         // Создаем заказ
         var order = new Order
@@ -55,7 +55,7 @@ public class OrderService : IOrderService
                 MenuItemId = item.MenuItemId,
                 Quantity = item.Quantity,
                 Note = item.Note,
-                StatusId = 6, // new (item_status)
+                StatusId = 7, // new (item_status)
                 CreatedAt = DateTime.UtcNow
             };
             
@@ -66,7 +66,8 @@ public class OrderService : IOrderService
         order.TotalPrice = totalPrice;
         
         // Помечаем столик как занятый
-        table.IsAvailable = false;
+        table.StatusId = 2; // "Занят"
+        table.CurrentOrderId = order.Id;
         
         await _context.SaveChangesAsync();
         
@@ -110,26 +111,26 @@ public class OrderService : IOrderService
     {
         var order = await _context.Orders
             .Include(o => o.Status)
+            .Include(o => o.Table)
             .FirstOrDefaultAsync(o => o.Id == orderId);
             
         if (order == null)
-            throw new KeyNotFoundException($"Order with ID {orderId} not found");
+            throw new KeyNotFoundException($"Заказ с ID {orderId} не найден");
             
         var status = await _context.Statuses
             .FirstOrDefaultAsync(s => s.Id == statusId && s.Type == "order_status");
             
         if (status == null)
-            throw new InvalidOperationException("Invalid status ID");
+            throw new InvalidOperationException("Некорректный статус");
             
         order.StatusId = statusId;
         
         // Если заказ завершен или отменен, освобождаем столик
         if (statusId == 4 || statusId == 5) // completed или cancelled
         {
-            var table = await _context.Tables.FindAsync(order.TableId);
-            if (table != null)
-                table.IsAvailable = true;
-                
+            var table = order.Table;
+            table.StatusId = 1; // "Свободен"
+            table.CurrentOrderId = null;
             order.ClosedAt = DateTime.UtcNow;
         }
         
@@ -167,7 +168,7 @@ public class OrderService : IOrderService
             .FirstOrDefaultAsync(o => o.Id == orderId);
             
         if (order == null)
-            throw new KeyNotFoundException($"Order with ID {orderId} not found");
+            throw new KeyNotFoundException($"Заказ с ID {orderId} не найден");
             
         // Проверяем, можно ли отменить заказ
         if (order.StatusId == 4 || order.StatusId == 5) // completed или cancelled
@@ -177,8 +178,9 @@ public class OrderService : IOrderService
         order.ClosedAt = DateTime.UtcNow;
         
         // Освобождаем столик
-        if (order.Table != null)
-            order.Table.IsAvailable = true;
+        var table = order.Table;
+        table.StatusId = 1; // "Свободен"
+        table.CurrentOrderId = null;
             
         await _context.SaveChangesAsync();
         return true;

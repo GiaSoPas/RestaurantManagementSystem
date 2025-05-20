@@ -12,7 +12,7 @@ using RestaurantManagementSystem.Data;
 namespace RestaurantManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250519134206_InitialCreate")]
+    [Migration("20250520142646_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -215,17 +215,17 @@ namespace RestaurantManagementSystem.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "admin"
+                            Name = "Администратор"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "waiter"
+                            Name = "Официант"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "cook"
+                            Name = "Повар"
                         });
                 });
 
@@ -258,61 +258,67 @@ namespace RestaurantManagementSystem.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "new",
+                            Name = "Новый",
                             Type = "order_status"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "in_progress",
+                            Name = "В обработке",
                             Type = "order_status"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "ready",
+                            Name = "Готовится",
                             Type = "order_status"
                         },
                         new
                         {
                             Id = 4,
-                            Name = "completed",
+                            Name = "Готов",
                             Type = "order_status"
                         },
                         new
                         {
                             Id = 5,
-                            Name = "cancelled",
+                            Name = "Подано",
                             Type = "order_status"
                         },
                         new
                         {
                             Id = 6,
-                            Name = "new",
-                            Type = "item_status"
+                            Name = "Отменен",
+                            Type = "order_status"
                         },
                         new
                         {
                             Id = 7,
-                            Name = "preparing",
+                            Name = "Новый",
                             Type = "item_status"
                         },
                         new
                         {
                             Id = 8,
-                            Name = "ready",
+                            Name = "Готовится",
                             Type = "item_status"
                         },
                         new
                         {
                             Id = 9,
-                            Name = "served",
+                            Name = "Готов",
                             Type = "item_status"
                         },
                         new
                         {
                             Id = 10,
-                            Name = "cancelled",
+                            Name = "Подано",
+                            Type = "item_status"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "Отменен",
                             Type = "item_status"
                         });
                 });
@@ -328,18 +334,140 @@ namespace RestaurantManagementSystem.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("boolean");
+                    b.Property<int?>("CurrentOrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("text");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("TableNumber")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CurrentOrderId")
+                        .IsUnique();
+
+                    b.HasIndex("StatusId");
+
                     b.HasIndex("TableNumber")
                         .IsUnique();
 
                     b.ToTable("Tables");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Capacity = 2,
+                            Location = "Зал",
+                            StatusId = 1,
+                            TableNumber = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Capacity = 2,
+                            Location = "Зал",
+                            StatusId = 1,
+                            TableNumber = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Capacity = 4,
+                            Location = "Зал",
+                            StatusId = 1,
+                            TableNumber = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Capacity = 4,
+                            Location = "Терраса",
+                            StatusId = 1,
+                            TableNumber = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Capacity = 6,
+                            Location = "Терраса",
+                            StatusId = 1,
+                            TableNumber = 5
+                        });
+                });
+
+            modelBuilder.Entity("RestaurantManagementSystem.Models.TableStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("TableStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Color = "#4CAF50",
+                            Description = "Столик свободен и готов к обслуживанию",
+                            Name = "Свободен"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Color = "#FF9800",
+                            Description = "За столиком есть активный заказ",
+                            Name = "Занят"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Color = "#F44336",
+                            Description = "Заказ завершен, ожидается оплата",
+                            Name = "Ожидает оплаты"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Color = "#2196F3",
+                            Description = "Столик забронирован на определенное время",
+                            Name = "Забронирован"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Color = "#9E9E9E",
+                            Description = "Столик временно недоступен",
+                            Name = "Недоступен"
+                        });
                 });
 
             modelBuilder.Entity("RestaurantManagementSystem.Models.User", b =>
@@ -395,7 +523,7 @@ namespace RestaurantManagementSystem.Migrations
                     b.HasOne("RestaurantManagementSystem.Models.Table", "Table")
                         .WithMany("Orders")
                         .HasForeignKey("TableId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("RestaurantManagementSystem.Models.User", "User")
@@ -449,6 +577,24 @@ namespace RestaurantManagementSystem.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("RestaurantManagementSystem.Models.Table", b =>
+                {
+                    b.HasOne("RestaurantManagementSystem.Models.Order", "CurrentOrder")
+                        .WithOne()
+                        .HasForeignKey("RestaurantManagementSystem.Models.Table", "CurrentOrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RestaurantManagementSystem.Models.TableStatus", "Status")
+                        .WithMany("Tables")
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CurrentOrder");
+
+                    b.Navigation("Status");
+                });
+
             modelBuilder.Entity("RestaurantManagementSystem.Models.User", b =>
                 {
                     b.HasOne("RestaurantManagementSystem.Models.Role", "Role")
@@ -492,6 +638,11 @@ namespace RestaurantManagementSystem.Migrations
             modelBuilder.Entity("RestaurantManagementSystem.Models.Table", b =>
                 {
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("RestaurantManagementSystem.Models.TableStatus", b =>
+                {
+                    b.Navigation("Tables");
                 });
 
             modelBuilder.Entity("RestaurantManagementSystem.Models.User", b =>

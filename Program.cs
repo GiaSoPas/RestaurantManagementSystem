@@ -14,6 +14,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register services
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ITableService, TableService>();
+builder.Services.AddScoped<IMenuService, MenuService>();
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
