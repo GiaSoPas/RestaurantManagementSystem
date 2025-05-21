@@ -255,31 +255,31 @@ public class TableService : ITableService
             TableNumber = t.TableNumber,
             Name = $"Стол {t.TableNumber}",
             StatusId = t.StatusId,
-            Status = t.Status.Name,
-            StatusColor = t.Status.Color,
+            Status = t.Status?.Name ?? "Неизвестно",
+            StatusColor = t.Status?.Color ?? "#000000",
             Capacity = t.Capacity,
             Description = t.Description,
-            Location = t.Location,
+            Location = t.Location ?? "Зал",
             CurrentOrder = t.CurrentOrder == null ? null : new OrderResponseDto
             {
                 Id = t.CurrentOrder.Id,
                 TableId = t.CurrentOrder.TableId,
                 TableNumber = t.TableNumber,
-                Status = t.CurrentOrder.Status.Name,
+                Status = t.CurrentOrder.Status?.Name ?? "Неизвестно",
                 CreatedAt = t.CurrentOrder.CreatedAt,
                 ClosedAt = t.CurrentOrder.ClosedAt,
                 TotalPrice = t.CurrentOrder.TotalPrice,
-                Items = t.CurrentOrder.OrderItems.Select(oi => new OrderItemResponseDto
+                Items = t.CurrentOrder.OrderItems?.Select(oi => new OrderItemResponseDto
                 {
                     Id = oi.Id,
                     MenuItemId = oi.MenuItemId,
-                    MenuItemName = oi.MenuItem.Name,
-                    Price = oi.MenuItem.Price,
+                    MenuItemName = oi.MenuItem?.Name ?? "Неизвестно",
+                    Price = oi.MenuItem?.Price ?? 0,
                     Quantity = oi.Quantity,
-                    Status = oi.Status.Name,
+                    Status = oi.Status?.Name ?? "Неизвестно",
                     Note = oi.Note,
-                    Subtotal = oi.MenuItem.Price * oi.Quantity
-                }).ToList()
+                    Subtotal = (oi.MenuItem?.Price ?? 0) * oi.Quantity
+                }).ToList() ?? new List<OrderItemResponseDto>()
             }
         });
     }
