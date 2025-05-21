@@ -10,4 +10,8 @@ public interface ITableService
     Task<TableDto> UpdateTableStatusAsync(int id, UpdateTableStatusDto dto);
     Task<TableDto> MoveOrderAsync(int tableId, int orderId, MoveOrderDto dto);
     Task<List<TableStatusDto>> GetTableStatusesAsync();
+    /// <summary>
+    /// Получить список всех столов
+    /// </summary>
+    Task<IEnumerable<TableDto>> GetAllTablesAsync();
 } 

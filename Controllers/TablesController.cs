@@ -149,4 +149,15 @@ public class TablesController : ControllerBase
         var statuses = await _tableService.GetTableStatusesAsync();
         return Ok(statuses);
     }
+
+    /// <summary>
+    /// Получить список всех столов
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<TableDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<TableDto>>> GetTables()
+    {
+        var tables = await _tableService.GetAllTablesAsync();
+        return Ok(tables);
+    }
 } 

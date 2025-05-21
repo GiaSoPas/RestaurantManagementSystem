@@ -43,6 +43,7 @@ public class OrderService : IOrderService
         };
         
         _context.Orders.Add(order);
+        await _context.SaveChangesAsync(); // Сохраняем заказ, чтобы получить Id
         
         // Добавляем элементы заказа
         decimal totalPrice = 0;
@@ -51,7 +52,7 @@ public class OrderService : IOrderService
             var menuItem = menuItems[item.MenuItemId];
             var orderItem = new OrderItem
             {
-                Order = order,
+                OrderId = order.Id, // Теперь у нас есть Id заказа
                 MenuItemId = item.MenuItemId,
                 Quantity = item.Quantity,
                 Note = item.Note,
@@ -67,7 +68,7 @@ public class OrderService : IOrderService
         
         // Помечаем столик как занятый
         table.StatusId = 2; // "Занят"
-        table.CurrentOrderId = order.Id;
+        table.CurrentOrderId = order.Id; // Теперь у нас есть Id заказа
         
         await _context.SaveChangesAsync();
         

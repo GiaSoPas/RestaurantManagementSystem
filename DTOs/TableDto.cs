@@ -5,12 +5,29 @@ namespace RestaurantManagementSystem.DTOs;
 public class TableDto
 {
     public int Id { get; set; }
+    
+    [Required]
     public int TableNumber { get; set; }
+    
+    [Required]
+    public string Name { get; set; } = string.Empty;
+    
+    [Required]
+    public int StatusId { get; set; }
+    
+    [Required]
+    public string Status { get; set; } = string.Empty;
+    
+    [Required]
+    public string StatusColor { get; set; } = string.Empty;
+    
+    [Required]
     public int Capacity { get; set; }
-    public string Status { get; set; } = null!;
-    public string StatusColor { get; set; } = null!;
-    public string? Location { get; set; }
+    
     public string? Description { get; set; }
+    
+    public string? Location { get; set; }
+    
     public OrderResponseDto? CurrentOrder { get; set; }
 }
 

@@ -237,4 +237,50 @@ public class TableService : ITableService
             Description = s.Description
         }).ToList();
     }
+
+    public async Task<IEnumerable<TableDto>> GetAllTablesAsync()
+    {
+        var tables = await _context.Tables
+            .Include(t => t.Status)
+            .Include(t => t.CurrentOrder)
+                .ThenInclude(o => o!.Status)
+            .Include(t => t.CurrentOrder)
+                .ThenInclude(o => o!.OrderItems)
+                    .ThenInclude(oi => oi.MenuItem)
+            .ToListAsync();
+
+        return tables.Select(t => new TableDto
+        {
+            Id = t.Id,
+            TableNumber = t.TableNumber,
+            Name = $"Стол {t.TableNumber}",
+            StatusId = t.StatusId,
+            Status = t.Status.Name,
+            StatusColor = t.Status.Color,
+            Capacity = t.Capacity,
+            Description = t.Description,
+            Location = t.Location,
+            CurrentOrder = t.CurrentOrder == null ? null : new OrderResponseDto
+            {
+                Id = t.CurrentOrder.Id,
+                TableId = t.CurrentOrder.TableId,
+                TableNumber = t.TableNumber,
+                Status = t.CurrentOrder.Status.Name,
+                CreatedAt = t.CurrentOrder.CreatedAt,
+                ClosedAt = t.CurrentOrder.ClosedAt,
+                TotalPrice = t.CurrentOrder.TotalPrice,
+                Items = t.CurrentOrder.OrderItems.Select(oi => new OrderItemResponseDto
+                {
+                    Id = oi.Id,
+                    MenuItemId = oi.MenuItemId,
+                    MenuItemName = oi.MenuItem.Name,
+                    Price = oi.MenuItem.Price,
+                    Quantity = oi.Quantity,
+                    Status = oi.Status.Name,
+                    Note = oi.Note,
+                    Subtotal = oi.MenuItem.Price * oi.Quantity
+                }).ToList()
+            }
+        });
+    }
 } 
