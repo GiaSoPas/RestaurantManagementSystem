@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantManagementSystem.DTOs;
 using RestaurantManagementSystem.Services;
@@ -7,7 +6,6 @@ namespace RestaurantManagementSystem.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class MenuController : ControllerBase
 {
     private readonly IMenuService _menuService;
@@ -32,7 +30,6 @@ public class MenuController : ControllerBase
     /// Создать новую категорию
     /// </summary>
     [HttpPost("categories")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(CategoryDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CategoryDto>> CreateCategory(CreateCategoryDto dto)
@@ -45,7 +42,6 @@ public class MenuController : ControllerBase
     /// Обновить категорию
     /// </summary>
     [HttpPut("categories/{id}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(CategoryDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CategoryDto>> UpdateCategory(int id, UpdateCategoryDto dto)
@@ -65,7 +61,6 @@ public class MenuController : ControllerBase
     /// Удалить категорию
     /// </summary>
     [HttpDelete("categories/{id}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -123,7 +118,6 @@ public class MenuController : ControllerBase
     /// Создать новое блюдо
     /// </summary>
     [HttpPost("items")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(MenuItemDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -144,7 +138,6 @@ public class MenuController : ControllerBase
     /// Обновить информацию о блюде
     /// </summary>
     [HttpPut("items/{id}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(MenuItemDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MenuItemDto>> UpdateMenuItem(int id, [FromForm] UpdateMenuItemDto dto)
@@ -164,7 +157,6 @@ public class MenuController : ControllerBase
     /// Удалить блюдо
     /// </summary>
     [HttpDelete("items/{id}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteMenuItem(int id)
@@ -184,7 +176,6 @@ public class MenuController : ControllerBase
     /// Обновить изображение блюда
     /// </summary>
     [HttpPut("items/{id}/image")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(MenuItemDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MenuItemDto>> UpdateMenuItemImage(int id, [FromForm] MenuItemImageDto dto)
